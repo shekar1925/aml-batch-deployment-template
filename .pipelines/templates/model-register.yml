@@ -1,0 +1,41 @@
+parameters:
+  - name: resource_group_name
+  - name: workspace_name
+  - name: model_metadata_artifact
+    default: model-metadata
+  - name: model_metadata_file
+    default: model.json
+
+jobs:
+  - job: model_register
+    dependsOn: pipeline_run
+    displayName: Register model
+
+    steps:
+      - task: AzureCLI@2
+        displayName: Install azure-cli-ml
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: az extension add -n azure-cli-ml
+
+      - task: AzureCLI@2
+        displayName: Get model metadata
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Retreive model for this build from workspace
+            az ml model list \
+            --tag build_id=$(Build.BuildId) \
+            --resource-group $(resource_group_name) \
+            --workspace-name $(workspace_name) \
+            --query '[0]' > ${{ parameters.model_metadata_file }}
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish model metadata artifact
+        inputs:
+          pathToPublish: ${{ parameters.model_metadata_file }}
+          artifactName: ${{ parameters.model_metadata_artifact }}

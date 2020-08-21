@@ -1,0 +1,19 @@
+name: score_env
+
+channels:
+  - defaults
+  - conda-forge
+
+dependencies:
+  - python=3.7
+  - pandas=1.0.*
+  - numpy=1.18.*
+  - scikit-learn=0.22.*
+  - joblib=0.14.*
+  - pip=20.0.*
+  - pip:
+      - azureml-sdk==1.8.*
+      - azureml-defaults==1.8.*
+      - azureml-pipeline-steps==1.8.*
+      - opencensus-ext-azure==1.0.*
+      - azureml-dataprep[fuse]

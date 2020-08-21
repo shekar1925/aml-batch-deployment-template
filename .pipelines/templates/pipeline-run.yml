@@ -1,0 +1,62 @@
+parameters:
+  - name: service_connection
+  - name: resource_group_name
+  - name: workspace_name
+  - name: pipeline_name
+  - name: pipeline_type
+    values:
+      - train
+      - score
+
+jobs:
+  - job: pipeline_run
+    displayName: Run pipeline (${{ parameters.pipeline_type }})
+
+    variables:
+      - template: ../variables.yml
+      - name: pipeline_action
+        value: run
+      - name: pipeline_script
+        value: src.${{ parameters.pipeline_type }}.${{ parameters.pipeline_type }}_pipeline
+
+    steps:
+      - task: CmdLine@2
+        displayName: Create anaconda environment
+        inputs:
+          script: |
+            echo "##vso[task.prependpath]$CONDA/bin"
+            conda env create --file $(dependencies_ci_cd)
+
+      - task: AzureCLI@2
+        displayName: Set subscription
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Fail on error
+            set -e
+
+            # Get subscription id
+            SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+            # Set variable for pipeline
+            echo "##vso[task.setvariable variable=subscription_id]$SUBSCRIPTION_ID"
+
+      - task: AzureCLI@2
+        displayName: Run pipeline
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Activate conda environment
+            source activate ci_env
+
+            # Run script to publish pipeline
+            python3 -m $(pipeline_script) \
+            --subscription_id $(subscription_id) \
+            --resource_group $(resource_group_name) \
+            --workspace_name $(workspace_name) \
+            --pipeline_name ${{ parameters.pipeline_name }} \
+            --pipeline_action $(pipeline_action) \

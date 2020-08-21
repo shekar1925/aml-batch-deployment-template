@@ -1,0 +1,99 @@
+parameters:
+  - name: service_connection
+  - name: resource_group_name
+  - name: workspace_name
+  - name: pipeline_name
+  - name: pipeline_artifact_name
+  - name: application_insights_name
+  - name: additional_pipeline_script_arguments
+    default: ""
+  - name: pipeline_type
+    values:
+      - train
+      - score
+
+jobs:
+  - job:
+    displayName: Draft pipeline (${{ parameters.pipeline_type }})
+
+    variables:
+      - template: ../variables.yml
+      - name: pipeline_metadata_file
+        value: pipeline.json
+      - name: pipeline_action
+        value: draft
+      - name: pipeline_script
+        value: src.${{ parameters.pipeline_type }}.${{ parameters.pipeline_type }}_pipeline
+
+    steps:
+      - task: CmdLine@2
+        displayName: Create anaconda environment
+        inputs:
+          script: |
+            echo "##vso[task.prependpath]$CONDA/bin"
+            conda env create --file $(dependencies_ci_cd)
+
+      - task: AzureCLI@2
+        displayName: Set subscription
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Fail on error
+            set -e
+
+            # Get subscription id
+            SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+
+            # Set variable for pipeline
+            echo "##vso[task.setvariable variable=subscription_id]$SUBSCRIPTION_ID"
+
+      - task: AzureCLI@2
+        displayName: Set application insights connection string
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Fail on error
+            set -e
+
+            # Get application insights connection string
+            APPLICATION_INSIGHTS_CONNECTION_STRING=$(az resource show \
+            --resource-group $(resource_group_name) \
+            --name $(application_insights_name) \
+            --resource-type Microsoft.Insights/components \
+            --resource-type Microsoft.Insights/components \
+            --query properties.ConnectionString -o tsv)
+
+            # Set variable for pipeline
+            echo "##vso[task.setvariable variable=application_insights_connection_string]$APPLICATION_INSIGHTS_CONNECTION_STRING"
+
+      - task: AzureCLI@2
+        displayName: Create draft pipeline
+        inputs:
+          azureSubscription: $(service_connection)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            # Activate conda environment
+            source activate ci_env
+
+            # Run script to publish pipeline
+            python3 -m $(pipeline_script) \
+            --subscription_id $(subscription_id) \
+            --resource_group $(resource_group_name) \
+            --workspace_name $(workspace_name) \
+            --pipeline_name ${{ parameters.pipeline_name }} \
+            --pipeline_action $(pipeline_action) \
+            --build_id $(Build.BuildId) \
+            --ai_connection_string $(application_insights_connection_string) \
+            --pipeline_metadata_file $(pipeline_metadata_file) \
+            ${{ parameters.additional_pipeline_script_arguments }}
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish pipeline metadata artifact
+        inputs:
+          pathToPublish: $(pipeline_metadata_file)
+          artifactName: ${{ parameters.pipeline_artifact_name }}

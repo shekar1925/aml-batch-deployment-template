@@ -1,0 +1,123 @@
+name: build-release - $(SourceBranchName) - $(Date:yyyyMMdd)$(Rev:.r) -
+pool:
+  vmImage: ubuntu-latest
+
+trigger:
+  branches:
+    include:
+      - master
+    exclude:
+      - docs/*
+      - LICENSE
+      - README.md
+
+variables:
+  - group: aml-deployment-templates
+  - template: variables.yml
+  - name: resource_group_name
+    value: $(environment)-$(namespace)-rg
+  - name: workspace_name
+    value: mlw$(environment)$(namespace)
+  - name: application_insights_name
+    value: ai$(environment)$(namespace)
+
+stages:
+  - stage: code_quality
+    displayName: Code Quality
+    jobs:
+      - template: ./templates/code-quality.yml
+
+  - stage: draft_pipelines
+    dependsOn: code_quality
+    displayName: Draft Pipelines
+    jobs:
+      - template: ./templates/pipeline-draft.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          application_insights_name: $(application_insights_name)
+          pipeline_artifact_name: $(train_pipeline_metadata_artifact)
+          pipeline_name: $(train_pipeline_endpoint_name)
+          pipeline_type: train
+          additional_pipeline_script_arguments: |
+            --compute_target $(compute_cluster_name) \
+            --environment_specification $(dependencies_train) \
+            --dataset_name $(dataset_name) \
+            --model_name $(model_name) \
+            --experiment_name $(train_experiment_name) \
+
+      - template: ./templates/pipeline-draft.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          application_insights_name: $(application_insights_name)
+          pipeline_artifact_name: $(score_pipeline_metadata_artifact)
+          pipeline_name: $(score_pipeline_endpoint_name)
+          pipeline_type: score
+          additional_pipeline_script_arguments: |
+            --compute_target $(compute_cluster_name) \
+            --environment_specification $(dependencies_score) \
+            --input_datastore_name $(input_datastore_name) \
+            --output_datastore_name $(output_datastore_name) \
+            --experiment_name $(score_experiment_name) \
+
+  - stage: model_build
+    dependsOn: draft_pipelines
+    displayName: Build Model
+    jobs:
+      - template: ./templates/pipeline-run.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          pipeline_name: $(train_pipeline_endpoint_name)
+          pipeline_type: train
+
+      - template: ./templates/model-register.yml
+        parameters:
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+
+  - stage: deploy_test
+    dependsOn: model_build
+    displayName: Test Score Pipeline
+    jobs:
+      - deployment: Approval
+        displayName: Test deployment approval
+        environment: Test
+      - template: ./templates/integration-test.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          dataset_name: $(dataset_name)
+          pipeline_artifact_name: $(score_pipeline_metadata_artifact)
+
+  - stage: deploy_production
+    dependsOn: deploy_test
+    displayName: Publish Pipelines
+    jobs:
+      - deployment: Approval
+        displayName: Production deployment approval
+        environment: Production
+      - template: ./templates/pipeline-publish.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          pipeline_artifact_name: $(train_pipeline_metadata_artifact)
+          pipeline_type: train
+      - template: ./templates/pipeline-publish.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
+          pipeline_artifact_name: $(score_pipeline_metadata_artifact)
+          pipeline_type: score
+      - template: ./templates/setup-data-drift.yml
+        parameters:
+          service_connection: $(service_connection)
+          resource_group_name: $(resource_group_name)
+          workspace_name: $(workspace_name)
