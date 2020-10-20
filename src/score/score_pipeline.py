@@ -27,6 +27,9 @@ def parse_args(argv):
 
     args, _ = ap.parse_known_args(argv)
 
+    print(sys.argv[1:])
+    print(args)
+
     # check draft arguments are present
     if args.pipeline_action == "draft":
         ap.add_argument("--compute_target", required=True)

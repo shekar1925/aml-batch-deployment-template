@@ -28,6 +28,7 @@ def parse_args(argv):
     )
 
     args, _ = ap.parse_known_args(argv)
+    print(sys.argv[1:])
     print(args)
 
     # check draft arguments are present
@@ -40,11 +41,9 @@ def parse_args(argv):
         ap.add_argument("--environment_specification", required=True)
         ap.add_argument("--ai_connection_string", default="")
         ap.add_argument("--environment_name", default="train_env")
-        ap.add_argument("--pipeline_metadata_file")
+        ap.add_argument("--pipeline_metadata_file", required=True)
 
         args, _ = ap.parse_known_args(argv)
-        print("args", args)
-        print("args.pipeline_metadata_file", args.pipeline_metadata_file)
 
     # check publish arguments are present
     if args.pipeline_action == "publish":
