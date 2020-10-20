@@ -43,7 +43,8 @@ def parse_args(argv):
         ap.add_argument("--pipeline_metadata_file")
 
         args, _ = ap.parse_known_args(argv)
-        print(args)
+        print("args", args)
+        print("args.pipeline_metadata_file", args.pipeline_metadata_file)
 
     # check publish arguments are present
     if args.pipeline_action == "publish":

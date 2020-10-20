@@ -89,6 +89,8 @@ jobs:
             # Activate conda environment
             source activate ci_env
 
+            echo $(pipeline_metadata_file)
+
             # Run script to publish pipeline
             python3 -m $(pipeline_script) \
             --subscription_id $(subscription_id) \
