@@ -103,11 +103,11 @@ jobs:
             --subscription_id $(subscription_id) \
             --resource_group $(resource_group_name) \
             --workspace_name $(workspace_name) \
-            --pipeline_name ${{ parameters.pipeline_name }} \
             --pipeline_action $(pipeline_action) \
             --build_id $(Build.BuildId) \
             --ai_connection_string $(application_insights_connection_string) \
             --pipeline_metadata_file $(pipeline_metadata_file) \
+            --pipeline_name ${{ parameters.pipeline_name }} \
             --compute_target ${{ parameters.compute_target }} \
             --environment_specification ${{ parameters.environment_specification }} \
             --experiment_name ${{ parameters.experiment_name }} \
