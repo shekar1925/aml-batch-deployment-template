@@ -16,6 +16,7 @@ args = None
 def parse_args(argv):
     # Parse command line arguments
     ap = ArgumentParser("score_pipeline")
+    print(sys.argv[1:])
 
     ap.add_argument("--subscription_id", required=True)
     ap.add_argument("--resource_group", required=True)
@@ -27,7 +28,6 @@ def parse_args(argv):
 
     args, _ = ap.parse_known_args(argv)
 
-    print(sys.argv[1:])
     print(args)
 
     # check draft arguments are present
