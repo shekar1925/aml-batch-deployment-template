@@ -90,6 +90,13 @@ jobs:
             source activate ci_env
 
             echo $(pipeline_metadata_file)
+            echo ${{ parameters.compute_target }}
+            echo ${{ parameters.environment_specification }}
+            echo ${{ parameters.experiment_name }}
+            echo ${{ parameters.dataset_name }}
+            echo ${{ parameters.model_name }}
+            echo ${{ parameters.input_datastore_name }}
+            echo ${{ parameters.output_datastore_name }}
 
             # Run script to publish pipeline
             python3 -m $(pipeline_script) \
