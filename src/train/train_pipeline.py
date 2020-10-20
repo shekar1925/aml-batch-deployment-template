@@ -42,6 +42,9 @@ def parse_args(argv):
         ap.add_argument("--environment_name", default="train_env")
         ap.add_argument("--pipeline_metadata_file")
 
+        args, _ = ap.parse_known_args(argv)
+        print(args)
+
     # check publish arguments are present
     if args.pipeline_action == "publish":
         ap.add_argument("--disable_published_pipelines", action="store_true")
