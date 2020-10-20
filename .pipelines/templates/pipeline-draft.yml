@@ -90,6 +90,7 @@ jobs:
             source activate ci_env
 
             echo $(pipeline_metadata_file)
+
             echo ${{ parameters.compute_target }}
             echo ${{ parameters.environment_specification }}
             echo ${{ parameters.experiment_name }}
