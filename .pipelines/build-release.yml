@@ -22,13 +22,13 @@ variables:
     value: ai$(environment)$(namespace)
 
 stages:
-  - stage: code_quality
-    displayName: Code Quality
-    jobs:
-      - template: ./templates/code-quality.yml
+  # - stage: code_quality
+  #   displayName: Code Quality
+  #   jobs:
+  #     - template: ./templates/code-quality.yml
 
   - stage: draft_pipelines
-    dependsOn: code_quality
+    # dependsOn: code_quality
     displayName: Draft Pipelines
     jobs:
       - template: ./templates/pipeline-draft.yml
