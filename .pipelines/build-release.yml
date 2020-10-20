@@ -40,12 +40,11 @@ stages:
           pipeline_artifact_name: $(train_pipeline_metadata_artifact)
           pipeline_name: $(train_pipeline_endpoint_name)
           pipeline_type: train
-          additional_pipeline_script_arguments: |
-            --compute_target $(compute_cluster_name) \
-            --environment_specification $(dependencies_train) \
-            --dataset_name $(dataset_name) \
-            --model_name $(model_name) \
-            --experiment_name $(train_experiment_name) \
+          compute_target: $(compute_cluster_name)
+          environment_specification: $(dependencies_train)
+          dataset_name: $(dataset_name)
+          model_name: $(model_name)
+          experiment_name: $(train_experiment_name)
 
       - template: ./templates/pipeline-draft.yml
         parameters:
@@ -56,12 +55,11 @@ stages:
           pipeline_artifact_name: $(score_pipeline_metadata_artifact)
           pipeline_name: $(score_pipeline_endpoint_name)
           pipeline_type: score
-          additional_pipeline_script_arguments: |
-            --compute_target $(compute_cluster_name) \
-            --environment_specification $(dependencies_score) \
-            --input_datastore_name $(input_datastore_name) \
-            --output_datastore_name $(output_datastore_name) \
-            --experiment_name $(score_experiment_name) \
+          compute_target: $(compute_cluster_name)
+          environment_specification: $(dependencies_score)
+          input_datastore_name: $(input_datastore_name)
+          output_datastore_name: $(output_datastore_name)
+          experiment_name: $(score_experiment_name)
 
   - stage: model_build
     dependsOn: draft_pipelines

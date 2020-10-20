@@ -5,7 +5,16 @@ parameters:
   - name: pipeline_name
   - name: pipeline_artifact_name
   - name: application_insights_name
-  - name: additional_pipeline_script_arguments
+  - name: compute_target
+  - name: environment_specification
+  - name: experiment_name
+  - name: dataset_name
+    default: ""
+  - name: model_name
+    default: ""
+  - name: input_datastore_name
+    default: ""
+  - name: output_datastore_name
     default: ""
   - name: pipeline_type
     values:
@@ -79,10 +88,7 @@ jobs:
           inlineScript: |
             # Activate conda environment
             source activate ci_env
-            
-            echo ${{ parameters.additional_pipeline_script_arguments }}
-            echo $(parameters.additional_pipeline_script_arguments)
-            
+
             # Run script to publish pipeline
             python3 -m $(pipeline_script) \
             --subscription_id $(subscription_id) \
@@ -93,7 +99,13 @@ jobs:
             --build_id $(Build.BuildId) \
             --ai_connection_string $(application_insights_connection_string) \
             --pipeline_metadata_file $(pipeline_metadata_file) \
-            ${{ parameters.additional_pipeline_script_arguments }}
+            --compute_target ${{ parameters.compute_target }}
+            --environment_specification ${{ parameters.environment_specification }}
+            --experiment_name ${{ parameters.experiment_name }}
+            --dataset_name ${{ parameters.dataset_name }}
+            --model_name ${{ parameters.model_name }}
+            --input_datastore_name ${{ parameters.input_datastore_name }}
+            --output_datastore_name ${{ parameters.output_datastore_name }}
 
       - task: PublishBuildArtifacts@1
         displayName: Publish pipeline metadata artifact

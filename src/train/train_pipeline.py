@@ -28,7 +28,6 @@ def parse_args(argv):
     )
 
     args, _ = ap.parse_known_args(argv)
-    print("Args (train_pipeline):", args)
 
     # check draft arguments are present
     if args.pipeline_action == "draft":
