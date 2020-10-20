@@ -79,7 +79,10 @@ jobs:
           inlineScript: |
             # Activate conda environment
             source activate ci_env
-
+            
+            echo ${{ parameters.additional_pipeline_script_arguments }}
+            echo $(parameters.additional_pipeline_script_arguments)
+            
             # Run script to publish pipeline
             python3 -m $(pipeline_script) \
             --subscription_id $(subscription_id) \
