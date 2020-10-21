@@ -8,7 +8,6 @@ from azureml.core.runconfig import RunConfiguration
 from azureml.pipeline.core import Pipeline
 from azureml.pipeline.core.graph import PipelineParameter
 from azureml.pipeline.steps import PythonScriptStep
-
 from src.utils.pipelines import draft_pipeline, publish_pipeline, run_pipeline
 
 args = None
