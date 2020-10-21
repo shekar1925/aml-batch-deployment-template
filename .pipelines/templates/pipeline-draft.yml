@@ -100,7 +100,39 @@ jobs:
             echo ${{ parameters.output_datastore_name }}
 
             # Run script to publish pipeline
-            python3 -m $(pipeline_script) --subscription_id $(subscription_id) --resource_group $(resource_group_name) --workspace_name $(workspace_name) --pipeline_action $(pipeline_action) --build_id $(Build.BuildId) --pipeline_name ${{ parameters.pipeline_name }} --ai_connection_string $(application_insights_connection_string) --compute_target ${{ parameters.compute_target }} --environment_specification ${{ parameters.environment_specification }} --experiment_name ${{ parameters.experiment_name }} --dataset_name ${{ parameters.dataset_name }} --model_name ${{ parameters.model_name }} --input_datastore_name ${{ parameters.input_datastore_name }} --output_datastore_name ${{ parameters.output_datastore_name }} --pipeline_metadata_file $(pipeline_metadata_file)
+            # python3 -m $(pipeline_script) \
+            # --subscription_id $(subscription_id) \
+            # --resource_group $(resource_group_name) \
+            # --workspace_name $(workspace_name) \
+            # --pipeline_action $(pipeline_action) \
+            # --build_id $(Build.BuildId) \
+            # --pipeline_name ${{ parameters.pipeline_name }} \
+            # --ai_connection_string $(application_insights_connection_string) \
+            # --compute_target ${{ parameters.compute_target }} \
+            # --environment_specification ${{ parameters.environment_specification }} \
+            # --experiment_name ${{ parameters.experiment_name }} \
+            # --dataset_name ${{ parameters.dataset_name }} \
+            # --model_name ${{ parameters.model_name }} \
+            # --input_datastore_name ${{ parameters.input_datastore_name }} \
+            # --output_datastore_name ${{ parameters.output_datastore_name }} \
+            # --pipeline_metadata_file $(pipeline_metadata_file)
+
+            python3 -m $(pipeline_script) \
+            --subscription_id $(subscription_id) \
+            --resource_group $(resource_group_name) \
+            --workspace_name $(workspace_name) \
+            --pipeline_action $(pipeline_action) \
+            --build_id $(Build.BuildId) \
+            --pipeline_name ${{ parameters.pipeline_name }} \
+            --ai_connection_string $(application_insights_connection_string) \
+            --compute_target cpu-compute \
+            --environment_specification ${{ parameters.environment_specification }} \
+            --experiment_name ${{ parameters.experiment_name }} \
+            --dataset_name ${{ parameters.dataset_name }} \
+            --model_name ${{ parameters.model_name }} \
+            --input_datastore_name ${{ parameters.input_datastore_name }} \
+            --output_datastore_name ${{ parameters.output_datastore_name }} \
+            --pipeline_metadata_file $(pipeline_metadata_file)
 
       - task: PublishBuildArtifacts@1
         displayName: Publish pipeline metadata artifact
