@@ -8,7 +8,6 @@ from azureml.core.runconfig import RunConfiguration
 from azureml.pipeline.core import Pipeline
 from azureml.pipeline.core.graph import PipelineParameter
 from azureml.pipeline.steps import PythonScriptStep
-
 from src.utils.pipelines import draft_pipeline, publish_pipeline, run_pipeline
 
 args = None
@@ -39,7 +38,9 @@ def parse_args(argv):
         ap.add_argument("--environment_specification", required=True)
         ap.add_argument("--ai_connection_string", default="")
         ap.add_argument("--environment_name", default="train_env")
-        ap.add_argument("--pipeline_metadata_file")
+        ap.add_argument("--pipeline_metadata_file", required=True)
+
+        args, _ = ap.parse_known_args(argv)
 
     # check publish arguments are present
     if args.pipeline_action == "publish":
