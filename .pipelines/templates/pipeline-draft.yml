@@ -117,7 +117,7 @@ jobs:
             # --output_datastore_name ${{ parameters.output_datastore_name }} \
             # --pipeline_metadata_file $(pipeline_metadata_file)
 
-            python3 -m $(pipeline_script) \
+            python3 src/${{ parameters.pipeline_type }}/${{ parameters.pipeline_type }}_pipeline.py \
             --subscription_id $(subscription_id) \
             --resource_group $(resource_group_name) \
             --workspace_name $(workspace_name) \
@@ -125,7 +125,7 @@ jobs:
             --build_id $(Build.BuildId) \
             --pipeline_name ${{ parameters.pipeline_name }} \
             --ai_connection_string $(application_insights_connection_string) \
-            --compute_target cpu-compute \
+            --compute_target ${{ parameters.compute_target }} \
             --environment_specification ${{ parameters.environment_specification }} \
             --experiment_name ${{ parameters.experiment_name }} \
             --dataset_name ${{ parameters.dataset_name }} \
