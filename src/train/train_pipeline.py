@@ -16,7 +16,6 @@ args = None
 def parse_args(argv):
     # Parse command line arguments
     ap = ArgumentParser("train_pipeline")
-    print(sys.argv[1:])
 
     # common arguments
     ap.add_argument("--subscription_id", required=True)
@@ -28,7 +27,6 @@ def parse_args(argv):
     )
 
     args, _ = ap.parse_known_args(argv)
-    print(args)
 
     # check draft arguments are present
     if args.pipeline_action == "draft":
