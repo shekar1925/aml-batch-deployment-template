@@ -19,6 +19,6 @@ dependencies:
       - opencensus-ext-azure==1.0.*
       - pytest==5.4.*
       - pytest-cov==2.10.*
-      - flake8==3.8.*
+      - flake8==3.7.*
       - requests==2.24.*
       - bandit==1.6.*
